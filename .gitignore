@@ -1,0 +1,16 @@
+__pycache__
+*.py[cod]
+*.sqlite3
+*.db
+.DS_Store
+
+# Virtual environments
+venv/
+.venv/
+
+# Python tooling caches
+.pytest_cache/
+.mypy_cache/
+
+# Local TLS certificates and keys
+certs/
