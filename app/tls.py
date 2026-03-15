@@ -7,14 +7,17 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import hashes, serialization
 
 def ensure_self_signed_cert(cert_dir: str):
+    # Store the certificate files in the chosen folder.
     cert_dir_path = Path(cert_dir)
     cert_dir_path.mkdir(parents=True, exist_ok=True)
     cert_file = cert_dir_path / "server.crt"
     key_file = cert_dir_path / "server.key"
 
+    # Reuse existing files so a new certificate is not created every time.
     if cert_file.exists() and key_file.exists():
         return str(cert_file), str(key_file)
 
+    # Create a new private key for HTTPS.
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     subject = issuer = x509.Name([
         x509.NameAttribute(NameOID.COUNTRY_NAME, "US"),
@@ -24,12 +27,14 @@ def ensure_self_signed_cert(cert_dir: str):
         x509.NameAttribute(NameOID.COMMON_NAME, "localhost"),
     ])
 
+    # Add the local names and IP address that the certificate should trust.
     san = x509.SubjectAlternativeName([
         x509.DNSName("localhost"),
         x509.DNSName("127.0.0.1"),
         x509.IPAddress(ip_address("127.0.0.1")),
     ])
 
+    # Build and sign a self-signed certificate.
     cert = (
         x509.CertificateBuilder()
         .subject_name(subject)
@@ -42,6 +47,7 @@ def ensure_self_signed_cert(cert_dir: str):
         .sign(key, hashes.SHA256())
     )
 
+    # Save the private key and certificate to disk.
     key_file.write_bytes(
         key.private_bytes(
             encoding=serialization.Encoding.PEM,

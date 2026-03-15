@@ -3,8 +3,10 @@ import requests
 BASE_URL = "https://127.0.0.1:5000"
 
 def run_security_check():
+    # Ignore HTTPS warnings because the app uses a self-signed certificate.
     requests.packages.urllib3.disable_warnings()
 
+    # Try a common SQL injection-style login payload.
     payload = {"username": "' OR 1=1 --", "password": "anything"}
     response = requests.post(f"{BASE_URL}/login", json=payload, verify=False)
 

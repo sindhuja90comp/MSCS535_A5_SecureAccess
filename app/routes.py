@@ -4,6 +4,7 @@ from .auth import register_user, authenticate_user, fetch_user
 def register_routes(app):
     @app.get("/")
     def home():
+        # Simple health check route.
         return jsonify({
             "message": "SecureAccess is running over HTTPS.",
             "endpoints": ["/register", "/login", "/user/<username>"]
@@ -11,6 +12,7 @@ def register_routes(app):
 
     @app.post("/register")
     def register():
+        # Read JSON safely, even if the request body is missing or invalid.
         data = request.get_json(silent=True) or {}
         username = data.get("username", "").strip()
         password = data.get("password", "")
@@ -21,6 +23,7 @@ def register_routes(app):
 
     @app.post("/login")
     def login():
+        # Read the login details sent by the client.
         data = request.get_json(silent=True) or {}
         username = data.get("username", "").strip()
         password = data.get("password", "")
@@ -32,6 +35,7 @@ def register_routes(app):
 
     @app.get("/user/<username>")
     def get_user(username):
+        # Look up a user by username.
         user = fetch_user(username)
         if user:
             return jsonify({"success": True, "user": user})
